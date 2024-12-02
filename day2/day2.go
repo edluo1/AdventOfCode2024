@@ -78,8 +78,11 @@ func part1(reports [][]int) int {
 }
 
 func checkSafeWithLastValue(report []int, idx int, gap int, increasing bool) bool {
-    if idx < gap { // Can't check with negative value.
-        return false
+    if idx < gap { // Interpreting comparisons with non-existing values as true.
+        return true
+    }
+    if idx >= len(report) {
+        return true
     }
     // // fmt.Printf("compared %v with %v while increasing: %v\n", report[idx-gap], report[idx], increasing)
     diff := absDiffInt(report[idx], report[idx-gap])
@@ -156,42 +159,23 @@ func part2(reports [][]int) int {
             safe := checkSafeWithLastValue(report, i, 1, increasing)
             if !safe {
                 if skipUsed(skipIdx) { 
-                    // Already skipped a value. Check if we should have skipped the other one
-                    if skipIdx == i - 2 {
-                        // fmt.Printf("not safe, checking if skipping i-2 would work")
-                        // Need to check both intervals
-                        safe = checkSafeWithLastValue(report, i, 2, increasing) && checkSafeWithLastValue(report, i-2, 1, increasing)
-                        if !safe {
-                            // fmt.Printf("skipping i-2 didn't work, ")
-                            isSafe = false
-                            break
-                        } else {
-                            // fmt.Printf("skipping i-2 worked, continuing, ")
-                        }
-                    } else {
-                        // fmt.Printf("skipped too much (once at %v), ", skipIdx)
-                        isSafe = false
-                        break
-                    }
+                    // Already skipped a value, return false.
+                    isSafe = false
+                    break
                 }
-                // Check the value 2 before, maybe it works with that one.
-                if i != 2 { // Don't check if i = 2 because skipping 1 changes the increase type; we handled that before.
-                    safe = checkSafeWithLastValue(report, i, 2, increasing)
-                }
-                if safe {
+
+                // Otherwise, check if we need to do 1 X 3 4 or 1 2 X 4. Consider four values: the one ahead, this one, and the two behind.
+                if i != 2 && checkSafeWithLastValue(report, i, 2, increasing) && checkSafeWithLastValue(report, i+1, 1, increasing) {
+                    // Skipping idx 2 since we already handled skipping 1 last case
                     skipIdx = i-1
-                    // fmt.Printf("%v: skipped %v, ", report, skipIdx)
-                } else {
-                    safe = checkSafeWithLastValue(report, i+1, 2, increasing)
+                } else if checkSafeWithLastValue(report, i+1, 2, increasing) && checkSafeWithLastValue(report, i-1, 1, increasing) {
                     skipIdx = i
-                    if !safe {
-                        // fmt.Printf("can't skip %v or %v, ", i, i-1)
-                        isSafe = false
-                        break
-                    }
-                    // fmt.Printf("%v: skipped %v, ", report, skipIdx)
-                    i += 1 // Increment by 1 so the next loop works properly
+                } else {
+                    // Neither skip works, return false
+                    isSafe = false
+                    break
                 }
+                i += 1
             }
         }
         if isSafe {
