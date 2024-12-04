@@ -17,16 +17,14 @@ func getwordsearch(f string) [][]byte {
     check(err)
     defer file.Close()
 
-    scanner:= bufio.NewScanner(file)
+    scanner := bufio.NewScanner(file)
 
     // Need to increase the capacity since default somehow breaks it
-    const maxCapacity = 512*1024  
-    buf := make([]byte, maxCapacity)
-    scanner.Buffer(buf, maxCapacity)
-
     var wordsearch [][]byte
     for scanner.Scan() {
-        wordsearch = append(wordsearch, scanner.Bytes())
+        line := make([]byte, len(scanner.Bytes()))
+        copy(line, scanner.Bytes())
+        wordsearch = append(wordsearch, line)
     }
 
     return wordsearch
