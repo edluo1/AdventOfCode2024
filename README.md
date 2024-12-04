@@ -6,7 +6,7 @@
 
 ## Usage
 1. First, have go (aka golang) installed on your device.
-1. Then, take the input for the day from the [Advent of Code website](https://adventofcode.com/).
+1. Then, take the input for the day from the [Advent of Code website](https://adventofcode.com/) and then save it to the folder you try to run.
 1. Open a command prompt (Windows)/terminal (Mac/Linux) in the folder for the day and then run this:
 
         go run .
