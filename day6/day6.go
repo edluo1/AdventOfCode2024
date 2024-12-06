@@ -119,7 +119,7 @@ func move_guard(g *guard, forward bool) {
 }
 
 // Input: guard's map
-// Guard starts facing north, and you need to find every square he visits until he leaves.
+// Guard starts facing north, and you need to find every square he visits until she leaves.
 func part1(guardMap [][]byte) int {
     y_size := len(guardMap)
     x_size := len(guardMap[0])
@@ -155,13 +155,13 @@ func part1(guardMap [][]byte) int {
 }
 
 type obstacle struct {
-    facing byte // Set facing to the way the guard should face when he first comes across it.
+    facing byte // Set facing to the way the guard should face when she first comes across it.
     x int
     y int
 }
 
 // Input: guard's map
-// Guard starts facing north. Figure out routes that would force him to circle around.
+// Guard starts facing north. Figure out routes that would force her to circle around.
 // You only get one obstacle.
 // Iterate over all areas the guard walked onto and detect the loop by calculating which way it went.
 func part2(guardMap [][]byte) int {
