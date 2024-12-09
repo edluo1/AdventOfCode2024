@@ -95,51 +95,50 @@ type Node struct {
     prev *Node
 }
 
+func connectNode(a *Node, b *Node) {
+    if a != nil {
+        a.next = b
+    }
+    if b != nil {
+        b.prev = a
+    }
+}
+
 func moveFile(withinEmptySpace *Node, toMove *Node) {
     beforeNode := toMove.prev
     afterNode := toMove.next
     // Merge the two before and previous nodes if they are empty
     if afterNode != nil && (beforeNode.data.id == afterNode.data.id) {
         // Consider afterNode removed from the list, merged empty space
-        beforeNode.next = afterNode.next
-        afterNode.prev = beforeNode // Doing this to make sure things work
+        connectNode(beforeNode, afterNode.next)
         beforeNode.data.size += afterNode.data.size + toMove.data.size
     } else if afterNode != nil && beforeNode.data.id != -1 && afterNode.data.id == -1 {
         // Empty space before but not after
-        beforeNode.next = afterNode
-        afterNode.prev = beforeNode
+        connectNode(beforeNode, afterNode)
         afterNode.data.size += toMove.data.size
     } else if afterNode != nil && beforeNode.data.id == -1 && afterNode.data.id != -1 {
         // Empty space after but not before
-        beforeNode.next = afterNode
-        afterNode.prev = beforeNode
+        connectNode(beforeNode, afterNode)
         beforeNode.data.size += toMove.data.size
     } else if afterNode != nil && beforeNode.data.id != -1 && afterNode.data.id != -1 {
         // No empty space in either way
         newNode := Node { file { -1, toMove.data.size }, nil, nil }
-        beforeNode.next = &newNode
-        newNode.prev = beforeNode
-        afterNode.prev = &newNode
-        newNode.next = afterNode
+        connectNode(beforeNode, &newNode)
+        connectNode(&newNode, afterNode)
     } else if afterNode == nil {
-        // Adding empty space at end for safety
-        newNode := Node { file { -1, toMove.data.size }, nil, nil }
-        beforeNode.next = &newNode
-        newNode.prev = beforeNode
+        // Move tail
+        connectNode(beforeNode, nil)
     }
     // Connect back piece to front
-    toMove.prev = withinEmptySpace.prev
-    withinEmptySpace.prev.next = toMove
+    connectNode(withinEmptySpace.prev, toMove)
 
     // Connect front piece to back
-    toMove.next = withinEmptySpace
-    withinEmptySpace.prev = toMove
+    connectNode(toMove, withinEmptySpace)
     withinEmptySpace.data.size -= toMove.data.size
     // Check if link is now empty.
     if withinEmptySpace.data.size <= 0 {
         // Set toMove's next node since an empty space has to be removed
-        toMove.next = withinEmptySpace.next
-        withinEmptySpace.next.prev = toMove
+        connectNode(toMove, withinEmptySpace.next)
     }
 }
 
@@ -212,8 +211,6 @@ func part2(diskMap string) int {
                 }
                 // fmt.Println("found area with size", freeArea.data.size)
                 moveFile(freeArea, nodeToMove)
-            } else {
-                // fmt.Println("no space found")
             }
             if minFileMoved > nodeToMove.data.id {
                 minFileMoved = nodeToMove.data.id
